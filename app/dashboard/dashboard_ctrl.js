@@ -8,119 +8,18 @@
     dashboard_ctrl.$inject = ['$scope', 'svr', '$state'];
 
     function dashboard_ctrl(vm, svr, $state) {
-        if (location.href.indexOf('userno=') > 0) {
-            var cur_url = window.frameElement != null ? window.frameElement.src : location.href;
-            var userno = cur_url.substr(cur_url.indexOf('userno=') + 7, cur_url.indexOf('&pwd=') - cur_url.indexOf('userno=') - 7);
-            var pwd = cur_url.substr(cur_url.indexOf('&pwd=') + 5);
-
-            $.ajax({
-                url: (window.app_path ? window.app_path : '') + 'login/decodeuserinfo?userno=' + userno + '&pwd=' + pwd,
-                async: false,
-                success: function (data) {
-                    data = JSON.parse(data);
-                    if (data.Success) {
-                        var level = undefined;
-                        if (data.ResultData.BranchNo.slice(2) == '0000') {
-                            level = 2;
-                        } else if (data.ResultData.BranchNo.slice(4) == '00') {
-                            level = 3;
-                        } else {
-                            level = 4;
-                        }
-
-                        $.cookie('sso', 1);
-                        $.cookie('user_level', level);
-                        $.cookie('user_code', data.ResultData.ErpNo);
-                        $.cookie('user_name', data.ResultData.RealName);
-                        $.cookie('agency_code', data.ResultData.BranchNo);
-                        $.cookie('agency_name', data.ResultData.BranchName);
-
-                        if (level < 4) {
-                            $.ajax({
-                                url: (window.app_path ? window.app_path : '') + 'login/queryuserinfo?user_code=' + data.ResultData.ErpNo,
-                                async: false,
-                                success: function (data) {
-                                    data = JSON.parse(data);
-                                    if (data.result == 'success') {
-                                        $.cookie('user_role', data.extra.role);
-
-                                        if (level == 2 && data.extra.role == 'accountant') {
-                                            if (data.extra.authority != null) {
-                                                $.cookie('user_authority', data.extra.authority);
-                                            }
-
-                                            if (data.extra.jurisdiction != null) {
-                                                $.cookie('user_jurisdiction', data.extra.jurisdiction);
-                                            }
-
-                                            if (data.extra.agency != null) {
-                                                $.cookie('agency', angular.toJson(data.extra.agency));
-                                            }
-                                        }
-                                    } else {
-                                        msg('无使用权限，非法操作！');
-                                    }
-                                }
-                            });
-                        }
-                    } else {
-                        msg('菜单登录出错！');
-                    }
-                }
-            });
-        }
-
         vm.user = {
-            sso: Number($.cookie('sso')) > 0 ? true : false,
-            level: Number($.cookie('user_level')),
-            code: $.cookie('user_code'),
-            name: $.cookie('user_name'),
-            agency_code: $.cookie('agency_code'),
-            agency_name: $.cookie('agency_name')
-        }
+            company_name: $.cookie('company_name'),
+            data_area: $.cookie('data_area')
+        };
 
-        if (typeof vm.user.level != "number" || vm.user.sso && location.href.indexOf('?') < 0) {
-            $state.go('login');
-        } else if (vm.user.level < 4) {
-            vm.user.role = $.cookie('user_role');
-
-            if (isString($.cookie('user_authority'))) {
-                vm.user.authority = Number($.cookie('user_authority'));
-            }
-
-            if (isString($.cookie('user_jurisdiction'))) {
-                vm.user.jurisdiction = $.cookie('user_jurisdiction').split('、');
-            }
-
-            if (isString($.cookie('account_pay'))) {
-                vm.user.account_pay = $.cookie('account_pay');
-            }
-
-            if (isString($.cookie('account_gather'))) {
-                vm.user.account_gather = $.cookie('account_gather');
-            }
-
-            if (isString($.cookie('agency'))) {
-                vm.user.agency = JSON.parse($.cookie('agency'));
-                var arr = [];
-                $.each(vm.user.agency, function () {
-                    arr.push({
-                        code: this.code,
-                        name: this.name
-                    });
-                    $.each(this.lower, function () {
-                        arr.push({
-                            code: this.code,
-                            name: this.name,
-                            is_lower: true
-                        });
-                    });
-                });
-                vm.user.agency = arr;
-            }
-        }
-
-        vm.state = $state.$current.name.split('.').the_last();
+        vm.search = {
+            condition:{
+                start_date: undefined,
+                end_date: undefined
+            },
+            search: angular.noop()  //定义父作用域的空方法，方便子作用域重写
+        };
 
         vm.page = {
             inited: false, //是否已初始化
@@ -175,9 +74,7 @@
                     this.load_data();
                 }
             },
-            load_data: function (search) {
-                //load_data实现通用方法体 或 设置为空方法待子作用域实现
-            }
+            load_data: angular.noop()   //实现通用方法体 或 设置为空方法待子作用域实现
         };
 
         vm.load_page_data = function (search) {

@@ -13,24 +13,27 @@
             password: undefined
         };
 
+        vm.error_msg = "";
+
         vm.validate = function() {
 
-            if (!isString(vm.user.code)) {
-                vm.validate.error = '用户名不能为空！';
+            if (!isString(vm.user.code) || isString(vm.user.code) && vm.user.code.trim().length == 0) {
+                vm.error_msg = '用户名不能为空！';
                 return;
             }
 
-            if (!isString(vm.user.password)) {
-                vm.validate.error = '密码不能为空！';
+            if (!isString(vm.user.password) || isString(vm.user.password) && vm.user.password.trim().length == 0) {
+                vm.error_msg = '密码不能为空！';
                 return;
             }
 
             svr.validate(vm.user, function(data) {
-                if(data > 0){
-                    $state.go('dashboard.generation_buckle');
+                $state.go('dashboard.generation_buckle');
+                /*if(data > 0){
+
                 }else{
-                    msg('用户名或密码错误！');
-                }
+                    vm.error_msg = '用户名或密码错误！';
+                }*/
             });
         };
 

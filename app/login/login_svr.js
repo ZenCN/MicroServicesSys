@@ -13,7 +13,7 @@
         };
 
         function validate(user, callback) {
-            if(user.code == 'zhangjianjun'){
+            if(user.code == 'cfjt' && user.password = '1'){
                 callback(1);
             }else{
                 callback(0);

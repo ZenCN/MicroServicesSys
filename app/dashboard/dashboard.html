@@ -1,13 +1,13 @@
 <div class=dashboard-page>
     <div class=container-fluid>
         <div class="row">
-            <div class="sidebar" ng-if="!user.sso" style="max-width: 217px;">
+            <div class="sidebar">
                 <div class=text-center>
                     <h2 class=brand>Leopaard
                         <small>微端业务系统</small>
                     </h2>
                     <img src="image/login/flat-avatar.png" class=user-avatar><br>
-                    <span>{{user.agency.name + ' ' + user.name}}</span>&nbsp;&nbsp;
+                    <span>{{user.company_name}}</span>&nbsp;&nbsp;
                     <a ui-sref="login" class="btn btn-white btn-outline btn-rounded btn-sm">注销</a>
                 </div>
                 <ul class="nav nav-sidebar">
@@ -16,7 +16,7 @@
                     </li>
                 </ul>
             </div>
-            <div class="main" ng-class="{sso:user.sso}" ui-view>
+            <div class="main" ui-view>
 
             </div>
         </div>
